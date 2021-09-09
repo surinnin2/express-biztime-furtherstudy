@@ -46,7 +46,7 @@ router.post('/', async function(req, res, next) {
 //PUT /companies
 router.put('/:code', async function (req, res, next) {
     try {
-        let code = req.params.code
+        let {code} = req.params
         let {name, description} = req.body
 
         const result = await db.query(
@@ -54,9 +54,9 @@ router.put('/:code', async function (req, res, next) {
             [name, description, code]
         )
         if (result.rows.length === 0 ) {
-            throw new ExpressError(`Can't update company with code of ${code}`, 404)
+            throw new ExpressError(`No company with code of ${code} found`, 404)
         }
-        return res.send({ 'company': result.rows[0] })
+        return res.send({ company: result.rows[0] })
     } catch (err) {
         return next(err)
     }
@@ -65,14 +65,14 @@ router.put('/:code', async function (req, res, next) {
 //DELETE /companies
 router.delete('/:code', async function (req, res, next) {
     try {
-        let code = req.params.code
+        let {code} = req.params
 
         const result = await db.query(
             'DELETE FROM companies WHERE code = $1', 
             [code]
         )
-        if (result.rowCount === 0 ) {
-            throw new ExpressError(`Can't find company with code of ${code}`, 404)
+        if (result.rowCount === 0) {
+            throw new ExpressError(`No company with code of ${code} found`, 404)
         }
         return res.send({ msg: 'Deleted!' })
     } catch (err) {

@@ -14,18 +14,17 @@ router.get('/', async function(req, res, next) {
     }
 })
 
-//GET /companies/[id]
+//GET /invoices/[id]
 router.get('/:id', async function(req, res, next) {
     try {
         const { id } = req.params
-        const result = await db.query(
-            `SELECT invoices.id, invoices.amt, invoices.paid, invoices.add_date, invoices.paid_date, companies.name, companies.description 
-            FROM invoices 
-            INNER JOIN companies 
-            ON (invoices.comp_code = companies.code) 
-            WHERE id = $1`
-            , [id])
+        const invResult = await db.query(
+            'SELECT id, amt, paid, add_date, paid_date FROM invoices WHERE id = $1', [id])
         
+        const comResult = await db.query(
+            'SELECT '
+        )
+
         if (result.rows.length === 0) {
             throw new ExpressError(`There is no invoice with id ${id}`, 404)
         }
@@ -47,6 +46,46 @@ router.post('/', async function(req, res, next) {
             RETURNING id, amt, paid, add_date, paid_date`
             , [comp_code, amt])
         return res.status(201).json({ invoice: result.rows[0] })
+    } catch (err) {
+        return next(err)
+    }
+})
+
+//PUT /invoices/id
+router.put('/:id', async function(req, res, next) {
+    try {
+        let {id} = req.params
+        let {amt} = req.body
+
+        const result = await db.query(
+            `UPDATE invoices 
+            SET amt = $1
+            WHERE id = $2
+            REUTRNING id, comp_code, amt, paid, add_date, paid_date`,
+            [amt, id]
+        )
+        if (result.rows.length === 0) {
+            throw new ExpressError(`No invoice with id of ${id} found`, 404)
+        }
+        return res.send({ invoice: result.rows[0] })
+    } catch (err) {
+        return next(err)
+    }
+})
+
+//DELETE /invoices
+router.delete('/:id', async function(req, res, next) {
+    try {
+        let {id} = req.params
+
+        const result = await db.query(
+            'DELETE FROM invoices WHERE id = $1',
+            [id]
+        )
+        if (result.rowCount === 0) {
+            throw new ExpressError(`No invoice with id of ${id} found`, 404)
+        }
+        return res.send({ status: 'deleted' })
     } catch (err) {
         return next(err)
     }
