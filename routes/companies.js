@@ -47,7 +47,10 @@ router.get('/:code', async function(req, res, next) {
 //POST /companies
 router.post('/', async function(req, res, next) {
     try {
-        let {code, name, description} = req.body
+        let {name, description} = req.body
+        //slugify to get lowercase of company name as code 
+        let code = slugify(name, {lower: true});
+
         const result = await db.query(
             'INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description', 
             [code, name, description]

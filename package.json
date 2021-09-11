@@ -11,9 +11,9 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "package.json": "^2.0.1",
     "pg": "^8.7.1"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/surinnin2/express-biztime.git"
